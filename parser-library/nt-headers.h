@@ -351,11 +351,11 @@ struct resource_dat_entry {
 };
 
 struct tls_dir_table {
- std:uint32_t StartAddressOfRawData
- std:uint32_t EndAddressOfRawData
- std:uint32_t AddressOfCallBacks
- std:uint32_t SizeOfZeroFill
- std:uint32_t Characteristics
+ std::uint32_t StartAddressOfRawData
+ std::uint32_t EndAddressOfRawData
+ std::uint32_t AddressOfCallBacks
+ std::uint32_t SizeOfZeroFill
+ std::uint32_t Characteristics
 }
 
 
