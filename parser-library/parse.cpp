@@ -1642,6 +1642,8 @@ bool getTLS(parsed_pe *p){
 
 
     }
+
+    return true;
   }
 
 
