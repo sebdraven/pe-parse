@@ -1616,7 +1616,10 @@ bool getTLS(parsed_pe *p){
   } else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC) {
     tlsDir = p->peHeader.nt.OptionalHeader64.DataDirectory[DIR_TLS];
   } else {
+
     return false;
+
+    }
 
     if (tlsDir.Size != 0) {
         section d;
@@ -1641,7 +1644,7 @@ bool getTLS(parsed_pe *p){
     }
   }
 
-}
+
 parsed_pe *ParsePEFromFile(const char *filePath) {
   // First, create a new parsed_pe structure
   // We pass std::nothrow parameter to new so in case of failure it returns
