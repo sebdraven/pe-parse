@@ -1609,7 +1609,7 @@ bool getSymbolTable(parsed_pe *p) {
 }
 
 bool getTLS(parsed_pe *p){
-    data_directory tls_dir_entry;
+    data_directory tlsDir;
 
     if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC) {
     tlsDir = p->peHeader.nt.OptionalHeader.DataDirectory[DIR_TLS];
