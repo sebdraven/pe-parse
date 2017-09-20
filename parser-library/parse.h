@@ -107,6 +107,10 @@ struct resource {
   bounded_buffer *buf;
 };
 
+struct tls {
+
+};
+
 // http://msdn.microsoft.com/en-us/library/ms648009(v=vs.85).aspx
 enum resource_type {
   RT_CURSOR = 1,

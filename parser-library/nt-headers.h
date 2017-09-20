@@ -350,6 +350,15 @@ struct resource_dat_entry {
   std::uint32_t reserved;
 };
 
+struct tls_dir_table {
+ std:uint32_t StartAddressOfRawData
+ std:uint32_t EndAddressOfRawData
+ std:uint32_t AddressOfCallBacks
+ std:uint32_t SizeOfZeroFill
+ std:uint32_t Characteristics
+}
+
+
 struct image_section_header {
   std::uint8_t Name[NT_SHORT_NAME_LEN];
   union {

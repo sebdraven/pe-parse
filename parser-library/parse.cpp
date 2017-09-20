@@ -1608,6 +1608,40 @@ bool getSymbolTable(parsed_pe *p) {
   return true;
 }
 
+bool getTLS(parsed_pe *p){
+    data_directory tls_dir_entry;
+
+    if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC) {
+    tlsDir = p->peHeader.nt.OptionalHeader.DataDirectory[DIR_TLS];
+  } else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC) {
+    tlsDir = p->peHeader.nt.OptionalHeader64.DataDirectory[DIR_TLS];
+  } else {
+    return false;
+
+    if (tlsDir.Size != 0) {
+        section d;
+    VA vaAddr;
+    if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC) {
+      vaAddr =
+          tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader.ImageBase;
+    } else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC) {
+      vaAddr =
+          tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader64.ImageBase;
+    } else {
+      return false;
+    }
+
+    if (!getSecForVA(p->internal->secs, vaAddr, d)) {
+      return false;
+    }
+
+    ::uint32_t rvaofft = vaAddr - d.sectionBase;
+
+
+    }
+  }
+
+}
 parsed_pe *ParsePEFromFile(const char *filePath) {
   // First, create a new parsed_pe structure
   // We pass std::nothrow parameter to new so in case of failure it returns
