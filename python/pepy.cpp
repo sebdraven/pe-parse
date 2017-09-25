@@ -87,6 +87,7 @@ struct pepy_section {
   PyObject *length;
   PyObject *virtaddr;
   PyObject *virtsize;
+  PyObject *pointerrawdata;
   PyObject *numrelocs;
   PyObject *numlinenums;
   PyObject *characteristics;
@@ -362,12 +363,13 @@ pepy_section_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 static int
 pepy_section_init(pepy_section *self, PyObject *args, PyObject *kwds) {
   if (!PyArg_ParseTuple(args,
-                        "OOOOOOOOO:pepy_section_init",
+                        "OOOOOOOOOO:pepy_section_init",
                         &self->name,
                         &self->base,
                         &self->length,
                         &self->virtaddr,
                         &self->virtsize,
+                        &self->pointerrawdata,
                         &self->numrelocs,
                         &self->numlinenums,
                         &self->characteristics,
@@ -382,6 +384,7 @@ static void pepy_section_dealloc(pepy_section *self) {
   Py_XDECREF(self->length);
   Py_XDECREF(self->virtaddr);
   Py_XDECREF(self->virtsize);
+  Py_XDECREF(self->pointerrawdata);
   Py_XDECREF(self->numrelocs);
   Py_XDECREF(self->numlinenums);
   Py_XDECREF(self->characteristics);
@@ -394,6 +397,7 @@ PEPY_OBJECT_GET(section, base)
 PEPY_OBJECT_GET(section, length)
 PEPY_OBJECT_GET(section, virtaddr)
 PEPY_OBJECT_GET(section, virtsize)
+PEPY_OBJECT_GET(section,pointerrawdata)
 PEPY_OBJECT_GET(section, numrelocs)
 PEPY_OBJECT_GET(section, numlinenums)
 PEPY_OBJECT_GET(section, characteristics)
@@ -404,6 +408,7 @@ static PyGetSetDef pepy_section_getseters[] = {
     OBJECTGETTER(section, base, "Base address"),
     OBJECTGETTER(section, length, "Length"),
     OBJECTGETTER(section, virtaddr, "Virtual address"),
+    OBJECTGETTER(section,pointerrawdata,'PointerRawData'),
     OBJECTGETTER(section, virtsize, "Virtual size"),
     OBJECTGETTER(section, numrelocs, "Number of relocations"),
     OBJECTGETTER(section, numlinenums, "Number of line numbers"),
@@ -794,12 +799,13 @@ int section_callback(void *cbd,
    * The tuple item order is important here. It is passed into the
    * section type initialization and parsed there.
    */
-  tuple = Py_BuildValue("sKKIIHHIO&",
+  tuple = Py_BuildValue("sKKIIIHHIO&",
                         name.c_str(),
                         base,
                         buflen,
                         s.VirtualAddress,
                         s.Misc.VirtualSize,
+                        s.PointerToRawData,
                         s.NumberOfRelocations,
                         s.NumberOfLinenumbers,
                         s.Characteristics,
