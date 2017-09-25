@@ -993,7 +993,7 @@ static PyObject *pepy_parsed_get_exports(PyObject *self, PyObject *args) {
   return ret;
 }
 
-int datadir_callback(void *cdb,VA addr, uint32_t size){
+int datadir_callback(void *cdb,RVA addr, uint32_t size){
 
   PyObject *tuple;
   PyObject *list = (PyObject *) cdb;
@@ -1226,7 +1226,7 @@ static PyMethodDef pepy_parsed_methods[] = {
      pepy_parsed_get_relocations,
      METH_NOARGS,
      "Return a list of relocation objects."},
-     {"get_dat",
+     {"get_datadirectories",
      pepy_parsed_get_datadirectories,
      METH_NOARGS,
      "Return a list of relocation objects."},
