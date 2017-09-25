@@ -53,6 +53,11 @@ struct exportent {
   string moduleName;
 };
 
+struct tls_ent {
+
+   VA addrOfCallbacks;
+};
+
 struct reloc {
   VA shiftedAddr;
   reloc_type type;
@@ -120,6 +125,7 @@ struct parsed_pe_internal {
   list<reloc> relocs;
   list<exportent> exports;
   list<symbol> symbols;
+  list<data_directory> data_directories;
 };
 
 ::uint32_t err = 0;
@@ -1117,6 +1123,24 @@ bool getRelocations(parsed_pe *p) {
 
   return true;
 }
+bool getDataDirectories(parsed_pe *p){
+ data_directory *entries;
+
+ if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC){
+   entries = p->peHeader.nt.OptionalHeader.DataDirectory;
+ }else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC){
+    entries = p->peHeader.nt.OptionalHeader64.DataDirectory;
+ } else {
+    return false;
+
+ }
+
+ for(int i=0;i<NUM_DIR_ENTRIES;i++){
+    data_directory dir = entries[i];
+    p->internal->data_directories.push_back(dir);
+ }
+ return true;
+}
 
 bool getImports(parsed_pe *p) {
   data_directory importDir;
@@ -1623,22 +1647,43 @@ bool getTLS(parsed_pe *p){
 
     if (tlsDir.Size != 0) {
         section d;
-    VA vaAddr;
-    if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC) {
-      vaAddr =
-          tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader.ImageBase;
-    } else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC) {
-      vaAddr =
-          tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader64.ImageBase;
-    } else {
-      return false;
-    }
+        VA vaAddr;
+        if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_32_MAGIC) {
+          vaAddr =
+              tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader.ImageBase;
+        } else if (p->peHeader.nt.OptionalMagic == NT_OPTIONAL_64_MAGIC) {
+          vaAddr =
+              tlsDir.VirtualAddress + p->peHeader.nt.OptionalHeader64.ImageBase;
+        } else {
+          return false;
+        }
 
-    if (!getSecForVA(p->internal->secs, vaAddr, d)) {
-      return false;
-    }
+        if (!getSecForVA(p->internal->secs, vaAddr, d)) {
+          return false;
+        }
 
-    ::uint32_t rvaofft = vaAddr - d.sectionBase;
+        ::uint32_t rvaofft = vaAddr - d.sectionBase;
+       //while (rvaofft =< tlsDir.Size) {
+
+      //::uint32_t pageRva;
+      //::uint32_t blockSize;
+
+      //if (!readDword(d.sectionData,
+      //               rvaofft + _offset(tls_dir_table, PageRVA),
+      //               pageRva)) {
+      //  return false;
+      //}
+
+      //if (!readDword(d.sectionData,
+      //               rvaofft + _offset(tls_dir_table, blockSize),
+      //               blockSize)) {
+      //  return false;
+      //      }
+      //  }
+
+      // Skip the Page RVA and Block Size fields
+     // rvaofft += sizeof(tls_dir_table);
+
 
 
     }
@@ -1684,7 +1729,10 @@ parsed_pe *ParsePEFromFile(const char *filePath) {
     // err is set by getHeader
     return nullptr;
   }
-
+  if(!getDataDirectories(p)){
+    delete p;
+    return nullptr;
+  }
   bounded_buffer *file = p->fileBuffer;
   if (!getSections(remaining, file, p->peHeader.nt, p->internal->secs)) {
     deleteBuffer(remaining);
@@ -1788,6 +1836,15 @@ void IterRelocs(parsed_pe *pe, iterReloc cb, void *cbd) {
   }
 
   return;
+}
+
+void IterDataDir(parsed_pe *pe,iterData cb, void *cbd){
+    list<data_directory> &l = pe -> internal -> data_directories;
+    for(data_directory entry:l){
+      if(cb(cbd, entry.VirtualAddress, entry.Size) != 0) {
+      break;
+    }
+    }
 }
 
 // Iterate over symbols (symbol table) in the PE file

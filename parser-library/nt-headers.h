@@ -413,6 +413,7 @@ struct reloc_block {
   std::uint32_t PageRVA;
   std::uint32_t BlockSize;
 };
+
 } // namespace peparse
 
 #endif

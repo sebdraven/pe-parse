@@ -993,6 +993,21 @@ static PyObject *pepy_parsed_get_exports(PyObject *self, PyObject *args) {
   return ret;
 }
 
+int datadir_callback(void *cdb,VA addr, uint32_t size){
+
+  PyObject *tuple;
+  PyObject *list = (PyObject *) cdb;
+
+  tuple = Py_BuildValue("II",addr,size);
+
+  if (PyList_Append(list, tuple) == -1) {
+    Py_DECREF(tuple);
+    return 1;
+  }
+
+  return 0;
+
+}
 int reloc_callback(void *cbd, VA addr, reloc_type type) {
   PyObject *reloc;
   PyObject *tuple;
@@ -1036,6 +1051,21 @@ static PyObject *pepy_parsed_get_relocations(PyObject *self, PyObject *args) {
   IterRelocs(((pepy_parsed *) self)->pe, reloc_callback, ret);
 
   return ret;
+}
+
+static PyObject *pepy_parsed_get_datadirectories(PyObject *self, PyObject *args) {
+  PyObject *ret = PyList_New(0);
+  if (!ret) {
+    PyErr_SetString(pepy_error, "Unable to create new list.");
+    return NULL;
+  }
+
+  //IterRsrc(((pepy_parsed *) self)->pe, resource_callback, ret);
+
+  IterDataDir(((pepy_parsed *) self)->pe, datadir_callback, ret);
+
+  return ret;
+
 }
 
 #define PEPY_PARSED_GET(ATTR, VAL)                                         \
@@ -1194,6 +1224,10 @@ static PyMethodDef pepy_parsed_methods[] = {
      "Return a list of export objects."},
     {"get_relocations",
      pepy_parsed_get_relocations,
+     METH_NOARGS,
+     "Return a list of relocation objects."},
+     {"get_dat",
+     pepy_parsed_get_datadirectories,
      METH_NOARGS,
      "Return a list of relocation objects."},
     {"get_resources",
