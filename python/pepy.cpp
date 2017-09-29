@@ -708,6 +708,21 @@ static PyObject *pepy_parsed_get_entry_point(PyObject *self, PyObject *args) {
   return ret;
 }
 
+static PyObject *pepy_parsed_get_data(PyObject *self, PyObject *args){
+    PyObject *ret;
+
+  ret = PyByteArray_FromStringAndSize(reinterpret_cast<char*>(((pepy_parsed *) self)->pe->fileBuffer -> buf),((pepy_parsed *) self)->pe->fileBuffer -> bufLen);
+
+  if (!ret) {
+    PyErr_SetString(pepy_error, "Unable to create new byte array.");
+    return NULL;
+  }
+
+
+  return ret;
+
+
+}
 static PyObject *pepy_parsed_get_bytes(PyObject *self, PyObject *args) {
   uint64_t start;
   Py_ssize_t len, idx;
@@ -1216,6 +1231,12 @@ static PyMethodDef pepy_parsed_methods[] = {
      pepy_parsed_get_bytes,
      METH_VARARGS,
      "Return the first N bytes at a given address."},
+     {"get_data",
+      pepy_parsed_get_data,
+      METH_NOARGS,
+      "Return all data of file"
+     }
+     ,
     {"get_sections",
      pepy_parsed_get_sections,
      METH_NOARGS,
