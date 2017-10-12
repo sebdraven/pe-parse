@@ -1055,6 +1055,8 @@ bool getRelocations(parsed_pe *p) {
       return false;
     }
 
+
+
     ::uint32_t rvaofft = vaAddr - d.sectionBase;
 
     while (rvaofft < relocDir.Size) {
@@ -1064,14 +1066,17 @@ bool getRelocations(parsed_pe *p) {
       if (!readDword(d.sectionData,
                      rvaofft + _offset(reloc_block, PageRVA),
                      pageRva)) {
+
         return false;
       }
 
       if (!readDword(d.sectionData,
                      rvaofft + _offset(reloc_block, BlockSize),
                      blockSize)) {
+
         return false;
       }
+
 
       // BlockSize - The total number of bytes in the base relocation block,
       // including the Page RVA and Block Size fields and the Type/Offset fields
